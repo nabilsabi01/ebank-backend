@@ -7,23 +7,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Table(name = "transactions")
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private LocalDateTime transactionDate;
-    private TransactionType transactionType;
-    private int amount;
+    private Long id;
+    private LocalDateTime date;
+    private BigDecimal amount;
+    @Enumerated(EnumType.STRING)
+    private TransactionType type;
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
+    @JoinColumn(name = "account_id")
     private Account account;
 }

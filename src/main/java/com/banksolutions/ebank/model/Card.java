@@ -1,7 +1,7 @@
 package com.banksolutions.ebank.model;
 
+import com.banksolutions.ebank.enums.CardStatus;
 import com.banksolutions.ebank.enums.CardType;
-import com.banksolutions.ebank.enums.CartStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,15 +20,15 @@ public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String number;
+    private String cardNumber;
     private String expirationDate;
-    private Integer vcc;
     @Enumerated(EnumType.STRING)
-    private CardType cartType;
-    private CartStatus status;
-    private Boolean isBlocked = false;
+    private CardType type;
+    @Enumerated(EnumType.STRING)
+    private CardStatus status;
+    private String blockReason;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "account_id")
     private Account account;
 }

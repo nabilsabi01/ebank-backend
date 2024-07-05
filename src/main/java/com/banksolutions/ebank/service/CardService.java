@@ -1,42 +1,75 @@
 package com.banksolutions.ebank.service;
 
+import com.banksolutions.ebank.dto.CardCreationDTO;
+import com.banksolutions.ebank.dto.CardDTO;
+import com.banksolutions.ebank.model.Account;
 import com.banksolutions.ebank.model.Card;
+import com.banksolutions.ebank.enums.CardStatus;
+import com.banksolutions.ebank.repository.AccountRepository;
 import com.banksolutions.ebank.repository.CardRepository;
-import com.banksolutions.ebank.enums.CartStatus;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+
+import static com.banksolutions.ebank.util.CardUtils.generateCardNumber;
+import static com.banksolutions.ebank.util.CardUtils.generateExpirationDate;
 
 @Service
 public class CardService {
     @Autowired
     private CardRepository cardRepository;
+    @Autowired
+    private AccountRepository accountRepository;
 
-    public Card getCard(Long id) {
-        return cardRepository.findById(id)
+    @Transactional
+    public CardDTO createCard(CardCreationDTO cardCreationDTO) {
+        Account account = accountRepository.findById(cardCreationDTO.getAccountId())
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        Card card = new Card();
+        card.setCardNumber(generateCardNumber());
+        card.setExpirationDate(generateExpirationDate(5));
+        card.setType(cardCreationDTO.getType());
+        card.setStatus(CardStatus.INACTIVE);
+        card.setAccount(account);
+
+        Card savedCard = cardRepository.save(card);
+        return convertToDTO(savedCard);
+    }
+
+    public CardDTO getCardInfo(Long id) {
+        Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Card not found"));
+        return convertToDTO(card);
     }
 
-    public List<Card> getAccountCards(Long accountId) {
-        return cardRepository.findByAccountId(accountId);
+    @Transactional
+    public void activateDeactivateCard(Long id, boolean activate) {
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Card not found"));
+        card.setStatus(activate ? CardStatus.ACTIVE : CardStatus.INACTIVE);
+        cardRepository.save(card);
     }
 
-    public Card activateCard(Long id) {
-        Card card = getCard(id);
-        card.setStatus(CartStatus.ACTIVE);
-        return cardRepository.save(card);
+    @Transactional
+    public void blockCard(Long id, String reason) {
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Card not found"));
+        card.setStatus(CardStatus.BLOCKED);
+        card.setBlockReason(reason);
+        cardRepository.save(card);
     }
 
-    public Card deactivateCard(Long id) {
-        Card card = getCard(id);
-        card.setStatus(CartStatus.INACTIVE);
-        return cardRepository.save(card);
-    }
-
-    public Card blockCard(Long id) {
-        Card card = getCard(id);
-        card.setIsBlocked(true);
-        return cardRepository.save(card);
+    private CardDTO convertToDTO(Card card) {
+        CardDTO dto = new CardDTO();
+        dto.setId(card.getId());
+        dto.setCardNumber(card.getCardNumber());
+        dto.setExpirationDate(generateExpirationDate(3));
+        dto.setType(card.getType());
+        dto.setStatus(card.getStatus());
+        dto.setBlockReason(card.getBlockReason());
+        dto.setAccountId(card.getAccount().getId());
+        return dto;
     }
 }

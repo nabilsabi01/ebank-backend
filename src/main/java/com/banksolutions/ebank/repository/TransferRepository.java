@@ -8,5 +8,4 @@ import java.util.List;
 
 @Repository
 public interface TransferRepository extends JpaRepository<Transfer, Long> {
-    List<Transfer> findByAccountId(Long accountId);
 }

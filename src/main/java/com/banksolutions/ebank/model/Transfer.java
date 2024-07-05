@@ -7,29 +7,31 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Table(name = "transfers")
 public class Transfer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String amount;
-    private String reason;
-    @Enumerated(EnumType.STRING)
-    private TransferType transferType;
+    private BigDecimal amount;
+    private String description;
     private LocalDateTime transferDate;
+    @Enumerated(EnumType.STRING)
+    private TransferType type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+    @ManyToOne
+    @JoinColumn(name = "source_account_id")
+    private Account sourceAccount;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "beneficiary_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "destination_account_id")
+    private Account destinationAccount;
+
+    @ManyToOne
+    @JoinColumn(name = "beneficiary_id")
     private Beneficiary beneficiary;
 }

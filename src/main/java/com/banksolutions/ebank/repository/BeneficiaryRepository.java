@@ -8,5 +8,4 @@ import java.util.List;
 
 @Repository
 public interface BeneficiaryRepository extends JpaRepository<Beneficiary, Long> {
-    List<Beneficiary> findByAccountId(Long accountId);
 }
