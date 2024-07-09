@@ -56,8 +56,7 @@ public class TransactionService {
     }
 
     public Page<TransactionDTO> getAccountTransactions(Long accountId, Pageable pageable) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new RuntimeException("Account not found"));
         Page<Transaction> transactionsPage = transactionRepository.findByAccount(account, pageable);
         return transactionsPage.map(this::convertToDTO);
     }

@@ -22,10 +22,18 @@ public class CustomerService {
         if (customerRepository.findByNationalId(customerCreationDTO.getNationalId()).isPresent()) {
             throw new RuntimeException("Customer with this National ID already exists");
         }
+
         if (customerRepository.findByEmail(customerCreationDTO.getEmail()).isPresent()) {
             throw new RuntimeException("Customer with this email already exists");
         }
 
+        Customer customer = getCustomer(customerCreationDTO);
+
+        Customer savedCustomer = customerRepository.save(customer);
+        return convertToDTO(savedCustomer);
+    }
+
+    private static Customer getCustomer(CustomerCreationDTO customerCreationDTO) {
         Customer customer = new Customer();
         customer.setNationalId(customerCreationDTO.getNationalId());
         customer.setFirstName(customerCreationDTO.getFirstName());
@@ -36,9 +44,7 @@ public class CustomerService {
         customer.setPhone(customerCreationDTO.getPhone());
         customer.setAddress(customerCreationDTO.getAddress());
         customer.setGender(customerCreationDTO.getGender());
-
-        Customer savedCustomer = customerRepository.save(customer);
-        return convertToDTO(savedCustomer);
+        return customer;
     }
 
     public CustomerDTO getCustomer(Long customerId) {

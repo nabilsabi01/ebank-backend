@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -27,6 +28,9 @@ public class AccountService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private CardService cardService;
 
     private final Random random = new Random();
 
@@ -70,10 +74,20 @@ public class AccountService {
             throw new RuntimeException("Account balance must be zero before closing");
         }
 
+
         account.setClosed(true);
         account.setClosureReason(accountClosureDTO.getClosureReason());
         Account savedAccount = accountRepository.save(account);
+
         return convertToDTO(savedAccount);
+    }
+
+    @Transactional
+    public void deleteAccount(Long accountId) throws AccountNotFoundException {
+        if (!accountRepository.existsById(accountId)) {
+            throw new AccountNotFoundException("Account not found with id: " + accountId);
+        }
+        accountRepository.deleteById(accountId);
     }
 
     private AccountDTO convertToDTO(Account account) {

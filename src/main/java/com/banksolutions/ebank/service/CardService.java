@@ -65,7 +65,7 @@ public class CardService {
         CardDTO dto = new CardDTO();
         dto.setId(card.getId());
         dto.setCardNumber(card.getCardNumber());
-        dto.setExpirationDate(generateExpirationDate(3));
+        dto.setExpirationDate(generateExpirationDate(5));
         dto.setType(card.getType());
         dto.setStatus(card.getStatus());
         dto.setBlockReason(card.getBlockReason());

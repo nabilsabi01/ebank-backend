@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.util.List;
 
 @RestController
@@ -40,5 +41,11 @@ public class AccountController {
     public ResponseEntity<AccountDTO> closeAccount(@RequestBody AccountClosureDTO accountClosureDTO) {
         AccountDTO closedAccount = accountService.closeAccount(accountClosureDTO);
         return ResponseEntity.ok(closedAccount);
+    }
+
+    @DeleteMapping("/{accountId}")
+    public ResponseEntity<Void> deleteAccount(@PathVariable Long accountId) throws AccountNotFoundException {
+        accountService.deleteAccount(accountId);
+        return ResponseEntity.noContent().build();
     }
 }
