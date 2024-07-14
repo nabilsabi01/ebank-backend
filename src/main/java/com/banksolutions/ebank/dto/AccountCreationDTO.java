@@ -9,5 +9,5 @@ import java.math.BigDecimal;
 public class AccountCreationDTO {
     private AccountType type;
     private BigDecimal initialBalance;
-    private Long customerId;
+    private Long userId;
 }

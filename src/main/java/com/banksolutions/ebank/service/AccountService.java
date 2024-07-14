@@ -5,10 +5,10 @@ import com.banksolutions.ebank.dto.AccountCreationDTO;
 import com.banksolutions.ebank.dto.AccountDTO;
 import com.banksolutions.ebank.dto.TransactionDTO;
 import com.banksolutions.ebank.model.Account;
-import com.banksolutions.ebank.model.Customer;
+import com.banksolutions.ebank.model.User;
 import com.banksolutions.ebank.model.Transaction;
 import com.banksolutions.ebank.repository.AccountRepository;
-import com.banksolutions.ebank.repository.CustomerRepository;
+import com.banksolutions.ebank.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +27,7 @@ public class AccountService {
     private AccountRepository accountRepository;
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private CardService cardService;
@@ -36,14 +36,14 @@ public class AccountService {
 
     @Transactional
     public AccountDTO createAccount(AccountCreationDTO accountCreationDTO) {
-        Customer customer = customerRepository.findById(accountCreationDTO.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+        User user = userRepository.findById(accountCreationDTO.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Account account = new Account();
         account.setType(accountCreationDTO.getType());
         account.setBalance(accountCreationDTO.getInitialBalance());
         account.setCreationDate(LocalDate.now());
-        account.setCustomer(customer);
+        account.setUser(user);
         account.setAccountNumber(generateAccountNumber());
         account.setClosed(false);
 
