@@ -1,13 +1,17 @@
 package com.banksolutions.ebank.dto;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
-public class UserCreationDTO {
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
+public class UserDto {
     private Long id;
     private String name;
+    private String mail;
     private String username;
     private String password;
-    private String mail;
     private String phone;
 }

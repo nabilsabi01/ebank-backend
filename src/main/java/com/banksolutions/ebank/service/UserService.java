@@ -1,92 +1,53 @@
 package com.banksolutions.ebank.service;
 
-import com.banksolutions.ebank.dto.UserCreationDTO;
-import com.banksolutions.ebank.dto.UserDTO;
+import com.banksolutions.ebank.dto.UserDto;
+import com.banksolutions.ebank.exception.DatabaseEmptyException;
+import com.banksolutions.ebank.exception.UserNotFoundException;
+import com.banksolutions.ebank.mapper.UserMapper;
 import com.banksolutions.ebank.model.User;
 import com.banksolutions.ebank.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Transactional
-    public UserDTO createUser(UserCreationDTO userCreationDTO) {
-        if (userRepository.findByNationalId(userCreationDTO.getNationalId()).isPresent()) {
-            throw new RuntimeException("User with this National ID already exists");
+    private final UserMapper userMapper;
+
+    public List<User> getAll() {
+        var users = userRepository.findAll();
+        if (users.isEmpty()) {
+            throw new DatabaseEmptyException();
         }
-
-        if (userRepository.findByEmail(userCreationDTO.getEmail()).isPresent()) {
-            throw new RuntimeException("User with this email already exists");
-        }
-
-        User user = getUser(userCreationDTO);
-
-        User savedUser = userRepository.save(user);
-        return convertToDTO(savedUser);
+        return users;
     }
 
-    private static User getUser(UserCreationDTO userCreationDTO) {
-        User user = new User();
-        user.setNationalId(userCreationDTO.getNationalId());
-        user.setFirstName(userCreationDTO.getFirstName());
-        user.setLastName(userCreationDTO.getLastName());
-        user.setEmail(userCreationDTO.getEmail());
-        user.setPassword(userCreationDTO.getPassword());
-        user.setPhone(userCreationDTO.getPhone());
-        user.setAddress(userCreationDTO.getAddress());
-        return user;
+    public UserDto save(UserDto userDto) {
+        var user = userMapper.toUser(userDto);
+        return userMapper.toUserDto(userRepository.save(user));
     }
 
-    public UserDTO getUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return convertToDTO(user);
+    public UserDto update(UserDto userDto, Long id) throws UserNotFoundException {
+        var user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        var userUpdated = userMapper.updateUserFromDto(userDto, user);
+        return userMapper.toUserDto(userRepository.save(userUpdated));
     }
 
-    public List<UserDTO> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public User getById(Long id) throws UserNotFoundException {
+        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
-    @Transactional
-    public UserDTO updateUser(Long useId, UserDTO userDTO) {
-        User user = userRepository.findById(useId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-        user.setPhone(userDTO.getPhone());
-        user.setAddress(userDTO.getAddress());
-
-        User updatedUser = userRepository.save(user);
-        return convertToDTO(updatedUser);
-    }
-
-    @Transactional
-    public void deleteUser(Long userID) {
-        User user = userRepository.findById(userID)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public UserDto delete(Long id) throws UserNotFoundException {
+        var user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         userRepository.delete(user);
-    }
-
-    private UserDTO convertToDTO(User user) {
-        UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setNationalId(user.getNationalId());
-        dto.setFirstName(user.getFirstName());
-        dto.setLastName(user.getLastName());
-        dto.setEmail(user.getEmail());
-        dto.setPhone(user.getPhone());
-        dto.setAddress(user.getAddress());
-        return dto;
+        return userMapper.toUserDto(user);
     }
 }
