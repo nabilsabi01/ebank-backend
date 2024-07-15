@@ -29,9 +29,6 @@ public class AccountService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private CardService cardService;
-
     private final Random random = new Random();
 
     @Transactional

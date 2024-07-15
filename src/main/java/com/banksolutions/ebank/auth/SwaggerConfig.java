@@ -32,6 +32,6 @@ public class SwaggerConfig {
                 .title("Authentication Service API Documentation")
                 .version("1.0.0")
                 .description("HTTP APIs to manage user registration and authentication.")
-                .contact(new Contact().name("Yassine OULARBI"));
+                .contact(new Contact().name("Nabil Sabi"));
     }
 }

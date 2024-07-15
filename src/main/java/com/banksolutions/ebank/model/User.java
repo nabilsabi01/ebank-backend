@@ -23,7 +23,7 @@ public class User implements UserDetails {
     private String password;
     private String mail;
     private String phone;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Account> accounts;
 
     @Override
